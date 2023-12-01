@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import { Server } from "socket.io"
 import http from 'http'
+import { SocketAddress } from 'net'
 
 const app = express()
 const server = http.createServer(app)
@@ -48,12 +49,19 @@ io.on('connection', (socket) => {
     console.log(`socket ${socket.id} connected`)
 
 
-    socket.on("send_message",(message) => {
-        console.log('data received in backend through the socket',message)
-        io.emit('message', message)
+    socket.on("send_message",(data) => {
+        console.log('data received in backend through the socket',data)
+        
+        socket.to(data.room).emit('received',data.message)
+
     })
     socket.on('disconnect', () => {
         console.log(`socket ${socket.id} disconnected`)
+    })
+
+    socket.on("join_room",(data)=>{
+        console.log('joined particular rooom')
+        socket.join(data)
     })
 })
 

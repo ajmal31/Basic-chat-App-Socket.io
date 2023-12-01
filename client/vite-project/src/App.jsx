@@ -7,27 +7,35 @@ const socket = io("http://localhost:3000")
 function App() {
 
 
-  const [name, setName] = useState('');
+  const [room,setRoom]=useState('')
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    socket.emit('send_message',{name,message})
+    socket.emit('send_message',{message,room})
 
   }
   useEffect(()=>{
 
-    socket.on('message',(message)=>{
+    socket.on('received',(message)=>{
       setMessages((messages)=>[...messages,message])
     })
   },[])
 
+  //room
+  const joinRoom=()=>{
+
+    socket.emit("join_room",room)
+  }
+
   return (
     <div>
+     <input type="text" onChange={e=>setRoom(e.target.value)} placeholder='Enter room number' value={room} />
+      <button onClick={joinRoom} >join room</button>
       <form onSubmit={handleSubmit}>
-        <input type="text" value={name} placeholder="Your name" onChange={(event) => setName(event.target.value)} />
+        
         <input type="text" value={message} placeholder="Your message" onChange={(event) => setMessage(event.target.value)} />
         <button type="submit">Send</button>
       </form>
@@ -35,8 +43,8 @@ function App() {
         {messages.map((message, index) => (
           
           <li key={index}>
-            {console.log('ahi')}
-            {message.name}: {message.message}
+          
+             {message}
           </li>
         ))}
       </ul>
